@@ -1,276 +1,160 @@
-const canvas = document.querySelector("#canvas");
+const canvas = document.getElementById("canvas");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 const context = canvas.getContext("2d");
-//canvas.style.background="#ff8";
-canvas.style.backgroundImage = "url('../images/background.png')";
-let state="walk";
-let key="";
 
-//PLAYER CREATION CLASS
-let newoffset = 0;
-let offset = 0;
-let gravity = 0.5;
-class Platform {
-  constructor(x, y, width, height, image) {
-    this.position = { x: x, y: y };
-    this.width = width;
-    this.height = height;
-    this.image = image;
-  }
-  draw() {
-    //context.fillStyle = "black";
-    //context.fillRect(this.position.x, this.position.y, this.width, this.height);
-    context.drawImage(this.image,0,0,this.width,this.height, this.position.x, this.position.y,this.width,this.height);
-  }
+canvas.style.backgroundColor= "#4da6ff";
+
+let life=10;
+let score=0;
+let timer=60;
+let startGame=0;
+
+
+class bubbles{
+    constructor(){
+        this.x= 100 + (Math.random()*(canvas.width-150))
+        this.y=40
+        this.radius=30
+        this.character = Ques[Math.floor(Math.random() * 62)];
+    }
+    draw(){
+
+        context.font = "20px Arial";
+        context.textAlign = "center"; 
+        context.textBaseline = "middle"; 
+        context.beginPath();
+        context.fillStyle="#000066"
+        context.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+        context.stroke();
+        context.fillText(this.character,this.x,this.y);
+        context.closePath();
+        
+    }
+    update() {
+        this.y += 2; 
+        this.draw();
+    }
 }
-class Player {
-  constructor(x, y) {
-    this.position = { x: 100, y: 100 };
-    this.velocity = { x: 0, y: 1 };
-    this.width = 30;
-    this.height = 30;
-    this.frames=1;
-  }
-  draw() {
-     if (this.velocity.x == 0 && this.velocity.y == 0) 
-    { this.width=66;
-      this.height=150;
-        context.drawImage(imgStandR, 0, 0,177,400,this.position.x,this.position.y,66,150 );
- }
-    if (this.velocity.x > 0) 
-      { context.drawImage(imgMoveR, 340*this.frames,0,340,400,this.position.x,this.position.y,90,this.height);}
- /*if (this.velocity.x < 0) 
-  {  context.drawImage(imgMoveL,0,0,340,400,this.x,this.y,this.width,this.height);
-    }
-    if (this.velocity.x == 0 && this.velocity.y == 0) 
-      {
-      context.drawImage(imgStandL,0,0,174,this.width,this.height);
-    }*/
 
-    //context.fillStyle = "red";
-    /*context.fillRect(
-      this.position.x + newoffset,
-      this.position.y,
-      this.width,
-      this.height)*/
+let bubblesArray =[];
+
+let Ques=[0,1,2,3,4,5,6,7,8,9,"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z","a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
+
+setInterval(() => {
+    if(startGame >=1){
+    let bubble = new bubbles();
+    bubblesArray.push(bubble);
     
-  }
+    timer--;  }
+}, 1000);
 
-  update() {
-    this.frames++;
-    if(this.frames>=24)
-      this.frames=1;
-    if (this.position.y + this.height + this.velocity.y >= canvas.height) {
-      this.velocity.y = 0;
-    } else {
-      this.velocity.y += gravity;
+
+
+for(let i=0;i<Ques.length;i++){
+  
+    addEventListener("keydown",function(event){
+        if(event.key==bubblesArray[i].character){
+            score++;
+            bubblesArray.splice(i,1);
+            pop.play();
+           
+        }
+        
+    
+
+    })
+  
+}
+
+
+
+function Start(){
+   context.clearRect(0,0,canvas.width,canvas.height)
+    context.fillStyle="#000066";
+    context.fillRect(0,0,canvas.width,canvas.height)
+    context.font = "50px Arial";
+    context.textAlign = "center"; 
+    context.textBaseline = "middle";
+    context.fillStyle="white";
+    context.fillText("Press Enter to Play",canvas.width/2,canvas.height/2);
+    addEventListener("keydown",function(event){
+        if(event.key=="Enter"){
+            startGame+=1;
+            updateAnimation();
+           
+            return;
+        }
+    })
+    
+}
+
+Start();
+
+
+function updateAnimation() {
+    context.clearRect(0, 0, canvas.width, canvas.height);   
+    context.fillStyle="white";
+
+        context.font = "50px Arial";
+        context.textAlign = "center"; 
+        context.textBaseline = "middle";
+        context.fillText("Life:",80,50)
+        context.fillText(life,180,50)
+        context.fillText("Score:",100,100)
+        context.fillText(score,220,100)
+        context.fillText("Timer:",100,150)
+        context.fillText(timer,220,150)
+    
+    for(let i=0;i<bubblesArray.length;i++){
+    bubblesArray[i].update(); 
+
+
+        if(bubblesArray[i].y>=canvas.height){
+            life--;
+            bubblesArray.splice(i,1);
+        }
     }
 
-    //PLATFORM STOP LOGIC
-    /*
-(this.position.y+this.height+this.velocity.y)>=platform.position.y&&
-    (this.position.y+this.height+this.velocity.y)<this.position.y+20)
-    */
 
-    for (let i = 0; i < platforms.length; i++) {
-      if (
-        this.position.x >= platforms[i].position.x &&
-        this.position.x + this.width - 20 <=
-          platforms[i].position.x + platforms[i].width &&
-        this.position.y + this.height + this.velocity.y >=
-          platforms[i].position.y &&
-        this.position.y + this.height <=platforms[i].position.y +2 
-      ) {
-        this.velocity.y = 0;
-      }
-            if((this.position.x+this.width+this.velocity.x>=platforms[i].position.x) && (this.position.x+this.velocity.x<=platforms[i].position.x+platforms[i].width) && (this.position.y>=platforms[i].position.y) )
-            
+    if(timer<=0){
+        context.font = "80px Arial";
+        context.textAlign = "center"; 
+        context.textBaseline = "middle"; 
+        context.clearRect(0,0,canvas.width,canvas.height)
 
-      {
        
+        context.fillText("Score:",4*canvas.width/9,4*canvas.height/7)
+        context.fillText(score,5*canvas.width/9,4*canvas.height/7)
         
-        
-    if(key=="Right")
-    {
-      state="haltRight";
-      offset=0; 
-      
-     
+
+        addEventListener("keydown",function(event){
+            if(event.key=="r"){
+                
+                 window.location.reload();
+            }
+        })
+       
     }
-    else if(key=="Left")
-    {
-      state="haltLeft";
-      offset=0;
-      
-    } 
-  
-  this.velocity.x=0;
 
-      }
-     
-        platforms[i].position.x += offset;
+    if(life<=0){
+
+        context.font = "80px Arial";
+        context.textAlign = "center"; 
+        context.textBaseline = "middle"; 
+        context.clearRect(0,0,canvas.width,canvas.height)
+        context.fillText("You Lost!! (Press R to Restart)",canvas.width/2,3*canvas.height/7)
+
+        context.fillText("Score:",4*canvas.width/9,4*canvas.height/7)
+        context.fillText(score,5*canvas.width/9,4*canvas.height/7)
+
+        addEventListener("keydown",function(event){
+            if(event.key=="r"){
+                
+                 window.location.reload();
+            }
+        })
     }
-    
-    //HORIZONTAL STOP LOGIC
-    /*for (let i = 0; i < platforms.length; i++) {
 
-   if((this.position.x+this.width)>=platforms[i].position.x&&
-this.position.y<=platforms[i].position.y&&
-this.position.y>=platforms[i].position.y+platforms[i].height)
-{
-    this.velocity.x=0;
+    requestAnimationFrame(updateAnimation);
 }
-    }*/
-    //MOVEMENT
-   // platforms[i].position.x+=offset;
-
-    this.position.x += this.velocity.x;
-    this.position.y += this.velocity.y;
-
-    this.draw();
-  }
-}
-
-function moveoffset(x) {
-  offset = x;
-}
-
-//MAIN LOGIC
-//CREATE IMAGES
-let platforms = [];
-const imgStandR = new Image();
-const imgStandL = new Image();
-const imgMoveR = new Image();
-const imgMoveL = new Image();
-const backImage = new Image();
-const platformImage = new Image();
-const platformSmallImage = new Image();
-total = 4;
-imgStandR.src = "../images/spriteStandRight.png";
-imgStandL.src = "../images/spriteStandLeft.png";
-imgMoveR.src = "../images/spriteRunRight.png";
-imgStandL.src = "../images/spriteRunLeft.png";
-
-backImage.src = "../images/hills.png";
-
-platformImage.src = "../images/platform.png";
-platformSmallImage.src = "../images/platformSmallTall.png";
-
-imgStandL.onload = picture;
-imgStandR.onload = picture;
-imgMoveL.onload = picture;
-imgMoveR.onload = picture;
-
-function picture() {
-  total--;
-  if (total == 0) {
-    gameAnimation();
-  }
-}
-
-const platform = new Platform(
-  0,
-  canvas.height - platformImage.height,
-  platformImage.width,
-  platformImage.height,
-  platformImage
-);
-platform.draw();
-const platform1 = new Platform(
-  platformImage.width-3,
-  canvas.height - platformImage.height,
-  platformImage.width,
-  platformImage.height,
-  platformImage
-);
-platform1.draw();
-const platform2 = new Platform(
-  platformImage.width * 2 + 120,
-  canvas.height - platformImage.height,
-  platformImage.width,
-  platformImage.height,
-  platformImage
-);
-platform2.draw();
-const platform3 = new Platform(
-  600,
-  165,
-  platformSmallImage.width,
-  platformSmallImage.height,
-  platformSmallImage
-);
-platform3.draw();
-platforms.push(platform);
-platforms.push(platform1);
-platforms.push(platform2);
-platforms.push(platform3);
-
-//console.log(platforms.length)
-const player = new Player();
-player.draw();
-
-//ANIMATION FRAME
-let startposition = 0;
-function gameAnimation() {
-  requestAnimationFrame(gameAnimation);
-  context.clearRect(0, 0, canvas.width, canvas.height);
-  //context.drawImage(backImage,0,0);
-
-  //  platform.draw();
-  // platform1.draw();
-  startposition = startposition + offset;
-  context.drawImage(backImage, startposition, 0);
-
-  for (let i = 0; i < platforms.length; i++) {
-    platforms[i].draw();
-  }
-  player.update();
-}
- gameAnimation();
-
-//EVENT HANDLING
-addEventListener("keydown", function (e) {
-  if (e.key == "ArrowUp") {
-    //if (player.position.y + player.height > canvas.height - 5)
-    player.velocity.y = -14;
-  }
-  if (e.key == "ArrowRight") {
-    if(state!="haltRight")
-    {
-      player.velocity.x = 4;
-    moveoffset(-5);
-
-    }
-    if(state=="haltLeft")
-      state="";
-    key="Right";
-    
-  }
-  if (e.key == "ArrowLeft") {
-    if(state!="haltLeft")
-      {
-        player.velocity.x = -4;
-
-    moveoffset(5);
-  
-      }
-      if(state=="haltRight")
-        state="";
-      key="Left";
-    
-  }
-});
-addEventListener("keyup", function (e) {
-  if (e.key == "ArrowRight") {
-    player.velocity.x = 0;
-    key="";
-    moveoffset(0);
-  }
-
-  if (e.key == "ArrowLeft") {
-    player.velocity.x = 0;
-    key="";
-    moveoffset(0);
-  }
-});
